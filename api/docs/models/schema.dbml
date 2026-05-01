@@ -1,0 +1,38 @@
+// RepFinder — Modelo Relacional
+
+Table users {
+  id        varchar(36) [pk, note: "UUID v4 via crypto.randomUUID()"]
+  email     varchar(255) [unique, not null, note: "Único — verificado antes de INSERT e UPDATE"]
+  name      varchar(255) [not null]
+  password  varchar(255) [not null, note: "pbkdf2 SHA-512 — formato: iterations:salt:hash"]
+  role      varchar(20) [not null, note: "student | representative"]
+
+  indexes {
+    email [unique]
+  }
+}
+
+Table vacancies {
+  id          varchar(36) [pk, note: "UUID v4"]
+  title       varchar(255) [not null]
+  description text [not null]
+  provider_id varchar(36) [not null, ref: > users.id, note: "FK — apenas role=representative pode criar"]
+  created_at  datetime [not null]
+
+  indexes {
+    provider_id
+  }
+}
+
+Table applications {
+  id         varchar(36) [pk, note: "UUID v4"]
+  user_id    varchar(36) [not null, ref: > users.id]
+  vacancy_id varchar(36) [not null, ref: > vacancies.id, note: "Exclusão bloqueada se houver applications"]
+  status     varchar(20) [not null, default: "pending", note: "pending | accepted | rejected"]
+  created_at datetime [not null]
+
+  indexes {
+    (user_id, vacancy_id) [unique, name: "uq_user_vacancy", note: "Um usuário só pode candidatar-se uma vez por vaga"]
+    vacancy_id
+  }
+}

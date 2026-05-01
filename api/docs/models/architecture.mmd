@@ -1,0 +1,62 @@
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "primaryColor": "#1E293B",
+    "primaryTextColor": "#E2E8F0",
+    "primaryBorderColor": "#334155",
+    "lineColor": "#64748B",
+    "secondaryColor": "#0F172A",
+    "tertiaryColor": "#020617",
+    "fontFamily": "Inter, sans-serif"
+  }
+}}%%
+
+graph TD
+  subgraph clients["Clientes"]
+    A["📱 App Flutter<br/>(Estudante)"]
+    B["🏠 App Flutter<br/>(Representante)"]
+  end
+
+  subgraph backend["⚙️ Backend — Node.js + Hono"]
+    direction TB
+    C["🌐 API REST<br/>:3030"]
+
+    subgraph modules["📦 Módulos"]
+      D["👤 users<br/>(auth, register, me)"]
+      E["🏡 vacancies<br/>(CRUD)"]
+      F["📄 applications<br/>(apply, status)"]
+    end
+
+    G["🔐 authMiddleware<br/>(JWT / jose)"]
+    H["🧠 Service Layer<br/>(regras de negócio)"]
+    I["🗄️ Repository Layer<br/>(SQL / mysql2)"]
+  end
+
+  subgraph mom["⚡ Eventos — Redis Pub/Sub"]
+    J["📡 Redis<br/>Pub/Sub"]
+    K["🔔 Worker<br/>notificações"]
+  end
+
+  subgraph db["💾 Persistência"]
+    L[("🛢️ MariaDB<br/>users · vacancies · applications")]
+  end
+
+  A -- "HTTP/REST<br/>Bearer Token" --> C
+  B -- "HTTP/REST<br/>Bearer Token" --> C
+
+  C --> G
+  G --> modules
+  modules --> H
+  H --> I
+  I --> L
+
+  C -- "publish events" --> J
+  J --> K
+  K -- "WebSocket / Polling" --> A
+  K -- "WebSocket / Polling" --> B
+
+  %% Estilos por grupo
+  style clients fill:#0F172A,stroke:#334155,color:#E2E8F0
+  style backend fill:#020617,stroke:#334155,color:#E2E8F0
+  style mom fill:#1E293B,stroke:#475569,color:#E2E8F0
+  style db fill:#020617,stroke:#334155,color:#E2E8F0
