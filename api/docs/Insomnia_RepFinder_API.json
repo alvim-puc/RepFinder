@@ -1,0 +1,366 @@
+{
+  "__export_format": 4,
+  "__export_date": "2026-05-01T00:00:00.000Z",
+  "__export_source": "insomnia.desktop.app:v9.0.0",
+  "resources": [
+    {
+      "_id": "wrk_repfinder_api",
+      "_type": "workspace",
+      "name": "RepFinder API",
+      "scope": "collection"
+    },
+    {
+      "_id": "env_base",
+      "_type": "environment",
+      "parentId": "wrk_repfinder_api",
+      "name": "Base Environment",
+      "data": {
+        "base_url": "http://localhost:3030",
+        "token": "COLE_SEU_TOKEN_AQUI"
+      },
+      "dataPropertyOrder": {
+        "&": ["base_url", "token"]
+      },
+      "color": null,
+      "isPrivate": false,
+      "metaSortKey": 1609459200000
+    },
+    {
+      "_id": "fld_auth",
+      "_type": "request_group",
+      "parentId": "wrk_repfinder_api",
+      "name": "🔐 Auth",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 1609459200000
+    },
+    {
+      "_id": "fld_users",
+      "_type": "request_group",
+      "parentId": "wrk_repfinder_api",
+      "name": "👤 Users",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 1609459210000
+    },
+    {
+      "_id": "fld_vacancies",
+      "_type": "request_group",
+      "parentId": "wrk_repfinder_api",
+      "name": "🏠 Vacancies",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 1609459220000
+    },
+    {
+      "_id": "fld_applications",
+      "_type": "request_group",
+      "parentId": "wrk_repfinder_api",
+      "name": "📌 Applications",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 1609459230000
+    },
+    {
+      "_id": "req_register",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Register",
+      "url": "{{ base_url }}/api/users/register",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"user@email.com\",\n  \"name\": \"User Test\",\n  \"password\": \"123456\",\n  \"role\": \"student\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1609459200000
+    },
+    {
+      "_id": "req_login",
+      "_type": "request",
+      "parentId": "fld_auth",
+      "name": "Login",
+      "url": "{{ base_url }}/api/users/login",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"email\": \"user@email.com\",\n  \"password\": \"123456\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1609459210000
+    },
+    {
+      "_id": "req_get_me",
+      "_type": "request",
+      "parentId": "fld_users",
+      "name": "Get My Profile",
+      "url": "{{ base_url }}/api/users/me",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1609459200000
+    },
+    {
+      "_id": "req_update_me",
+      "_type": "request",
+      "parentId": "fld_users",
+      "name": "Update My Profile",
+      "url": "{{ base_url }}/api/users/me",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"name\": \"Updated Name\",\n  \"email\": \"newemail@email.com\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1609459210000
+    },
+    {
+      "_id": "req_create_vacancy",
+      "_type": "request",
+      "parentId": "fld_vacancies",
+      "name": "Create Vacancy",
+      "url": "{{ base_url }}/api/vacancies",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"Senior Developer\",\n  \"description\": \"We are looking for a senior developer with 5+ years of experience\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1609459200000
+    },
+    {
+      "_id": "req_list_vacancies",
+      "_type": "request",
+      "parentId": "fld_vacancies",
+      "name": "List All Vacancies",
+      "url": "{{ base_url }}/api/vacancies",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 1609459210000
+    },
+    {
+      "_id": "req_list_my_vacancies",
+      "_type": "request",
+      "parentId": "fld_vacancies",
+      "name": "List My Vacancies",
+      "url": "{{ base_url }}/api/vacancies/mine",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1609459220000
+    },
+    {
+      "_id": "req_get_vacancy",
+      "_type": "request",
+      "parentId": "fld_vacancies",
+      "name": "Get Vacancy",
+      "url": "{{ base_url }}/api/vacancies/VACANCY_ID",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [],
+      "authentication": {},
+      "metaSortKey": 1609459230000
+    },
+    {
+      "_id": "req_update_vacancy",
+      "_type": "request",
+      "parentId": "fld_vacancies",
+      "name": "Update Vacancy",
+      "url": "{{ base_url }}/api/vacancies/VACANCY_ID",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"Updated Title\",\n  \"description\": \"Updated description\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1609459240000
+    },
+    {
+      "_id": "req_delete_vacancy",
+      "_type": "request",
+      "parentId": "fld_vacancies",
+      "name": "Delete Vacancy",
+      "url": "{{ base_url }}/api/vacancies/VACANCY_ID",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1609459250000
+    },
+    {
+      "_id": "req_create_application",
+      "_type": "request",
+      "parentId": "fld_applications",
+      "name": "Create Application",
+      "url": "{{ base_url }}/api/applications",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"vacancyId\": \"VACANCY_ID\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1609459200000
+    },
+    {
+      "_id": "req_list_my_applications",
+      "_type": "request",
+      "parentId": "fld_applications",
+      "name": "List My Applications",
+      "url": "{{ base_url }}/api/applications/mine",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1609459210000
+    },
+    {
+      "_id": "req_list_vacancy_applications",
+      "_type": "request",
+      "parentId": "fld_applications",
+      "name": "List Vacancy Applications",
+      "url": "{{ base_url }}/api/applications/vacancies/VACANCY_ID",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1609459220000
+    },
+    {
+      "_id": "req_update_application_status",
+      "_type": "request",
+      "parentId": "fld_applications",
+      "name": "Update Application Status",
+      "url": "{{ base_url }}/api/applications/APPLICATION_ID/status",
+      "method": "PATCH",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"status\": \"accepted\"\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        },
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1609459230000
+    },
+    {
+      "_id": "req_delete_application",
+      "_type": "request",
+      "parentId": "fld_applications",
+      "name": "Delete Application",
+      "url": "{{ base_url }}/api/applications/APPLICATION_ID",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1609459240000
+    }
+  ]
+}
