@@ -32,19 +32,23 @@ repfinder/
 
 ## Como rodar a API
 
-**Pré-requisitos:** Node.js 12+, MariaDB/MySQL rodando localmente.
+**Pré-requisitos:** Node.js 18+, MariaDB/MySQL rodando localmente.
 
 ```bash
 cd api
+cp .env.example .env # preencha as variáveis abaixo
 npm install
 npm run dev
 ```
+
+Variáveis de ambiente necessárias em `api/.env`:
 
 ```
 DB_HOST=SEU_HOST
 DB_USER=SEU_USER
 DB_PASS=SUA_SENHA
 DB_NAME=SEU_BANCO
+JWT_SECRET=SEU_SEGREDO
 ```
 
 O banco de dados e as tabelas são criados automaticamente na primeira execução.

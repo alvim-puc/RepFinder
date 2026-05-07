@@ -84,7 +84,7 @@ A comunicação com o banco é feita de forma direta, permitindo controle total 
 
 ### 🔄 Comunicação Assíncrona (Evolução)
 
-Embora a versão atual da aplicação seja síncrona, a arquitetura já considera a introdução de um componente intermediário de mensageria (MOM — Message-Oriented Middleware).
+Embora a versão atual da aplicação seja síncrona, a arquitetura já considera a introdução de um componente intermediário de mensageria baseado em *Redis Pub/Sub*.
 
 Esse componente será responsável por:
 
@@ -103,10 +103,7 @@ podem ser publicados pelo backend e consumidos por um serviço dedicado, respons
 
 ### 📡 Notificações e Tempo Real
 
-Em estágios futuros, os clientes poderão ser atualizados de forma assíncrona por meio de:
-
-* WebSockets
-* ou mecanismos de polling
+Em estágios futuros, os clientes poderão ser atualizados de forma assíncrona por meio de *SSE (Server-Side Events)*.
 
 Isso permitirá que mudanças relevantes sejam refletidas na interface do usuário sem necessidade de atualização manual.
 
@@ -128,5 +125,5 @@ Essa organização mantém o sistema compreensível no presente, ao mesmo tempo 
 ![RepFinder - DA](./images/RepFinder%20-%20DA.png)
 
 > **Protocolos:** clientes → backend via HTTP/REST com JWT Bearer.  
-> Backend → banco via TCP (pool MySQL). Backend → MOM via AMQP (RabbitMQ) ou Redis Pub/Sub.  
-> MOM → clientes via WebSocket ou polling assíncrono (Sprint 3/4).
+> Backend → banco via TCP (pool MySQL). Backend → MOM via Redis Pub/Sub.  
+> MOM → clientes via SSE (Sprint 3/4).
