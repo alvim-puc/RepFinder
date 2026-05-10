@@ -122,7 +122,7 @@ Essa organização mantém o sistema compreensível no presente, ao mesmo tempo 
 
 ## 🗯️ Diagrama Arquitetural
 
-![RepFinder - DA](./images/RepFinder%20-%20DA.png)
+![RepFinder - DA](./images/RepFinder%20-%20DA.svg)
 
 > **Protocolos:** clientes → backend via HTTP/REST com JWT Bearer.  
 > Backend → banco via TCP (pool MySQL). Backend → MOM via Redis Pub/Sub.  
