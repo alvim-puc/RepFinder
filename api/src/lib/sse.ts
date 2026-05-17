@@ -1,27 +1,29 @@
-// api/lib/sse.ts
-import { createClient } from 'redis'
-import { env } from './env'
-
 type SSEWriter = WritableStreamDefaultWriter<Uint8Array>
+
 export const connections = new Map<string, SSEWriter>()
 
-// subscriber interno — escuta canais de notificação individuais
-const subscriber = createClient({ url: env.REDIS_URL })
-await subscriber.connect()
-
-export async function registerConnection(userId: string, writer: SSEWriter) {
+export function registerConnection(userId: string, writer: SSEWriter): void {
   connections.set(userId, writer)
-
-  // assina o canal pessoal desse usuário
-  await subscriber.subscribe(`repfinder:notify:${userId}`, async (message) => {
-    const w = connections.get(userId)
-    if (!w) return
-    const chunk = new TextEncoder().encode(message)
-    await w.write(chunk).catch(() => {})
-  })
 }
 
-export async function removeConnection(userId: string) {
+export function removeConnection(userId: string): void {
   connections.delete(userId)
-  await subscriber.unsubscribe(`repfinder:notify:${userId}`)
+}
+
+export async function sendEvent(
+  userId: string,
+  event: string,
+  data: unknown
+): Promise<void> {
+  const writer = connections.get(userId)
+  if (!writer) return
+
+  const chunk = new TextEncoder().encode(
+    `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`
+  )
+
+  await writer.write(chunk).catch(() => {
+    // writer fechado — cliente desconectou entre o check e o write
+    removeConnection(userId)
+  })
 }

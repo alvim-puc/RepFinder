@@ -55,7 +55,7 @@ async function createApplication(
       providerId: vacancy.providerId
     });
 
-    publish(event);
+    await publish(event);
   } catch (error) {
     console.error('Failed to publish application.created event', error)
   }
@@ -120,7 +120,7 @@ async function updateApplicationStatus(
       status: data.status
     });
 
-    publish(event);
+    await publish(event);
   } catch (error) {
     console.error('Failed to publish application.status.updated event', error)
   }

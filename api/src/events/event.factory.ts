@@ -1,5 +1,4 @@
-import type { AppEvent } from "../api/src/events/events.types"
-
+import type { AppEvent } from "./events.types"
 
 type EventPayload<E extends AppEvent['event']> = Omit<
   Extract<AppEvent, { event: E }>,
