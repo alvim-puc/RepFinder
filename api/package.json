@@ -9,7 +9,8 @@
   "dependencies": {
     "@hono/node-server": "^1.19.14",
     "hono": "^4.12.16",
-    "jose": "^6.2.3"
+    "jose": "^6.2.3",
+    "redis": "^5.12.1"
   },
   "devDependencies": {
     "@types/node": "^20.11.17",

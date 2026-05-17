@@ -8,6 +8,8 @@ import type {
   CreateApplicationDTO,
   UpdateApplicationStatusDTO
 } from './application.types'
+import { eventFactory } from '@/events/event.factory'
+import { publish } from '@/events/publisher'
 
 const service = {
   create: createApplication,
@@ -26,7 +28,7 @@ async function createApplication(
     'User not found'
   )
 
-  assertExists(
+  const vacancy = assertExists(
     await vacancyRepo.findVacancyById(data.vacancyId),
     'Vacancy not found'
   )
@@ -40,10 +42,25 @@ async function createApplication(
     throw new AppError('You already applied for this vacancy', 409)
   }
 
-  return repo.createApplication({
+  const application = await repo.createApplication({
     userId,
     vacancyId: data.vacancyId
   })
+
+  try {
+    const event = eventFactory.applicationCreated({
+      applicationId: application.id,
+      vacancyId: application.vacancyId,
+      applicantId: application.userId,
+      providerId: vacancy.providerId
+    });
+
+    await publish(event);
+  } catch (error) {
+    console.error('Failed to publish application.created event', error)
+  }
+
+  return application
 }
 
 async function listMyApplications(userId: string): Promise<Application[]> {
@@ -94,6 +111,19 @@ async function updateApplicationStatus(
     await repo.updateApplicationStatus(applicationId, data),
     'Application not found'
   )
+
+  try {
+    const event = eventFactory.applicationStatusUpdated({
+      applicationId: updatedApplication.id,
+      vacancyId: updatedApplication.vacancyId,
+      applicantId: updatedApplication.userId,
+      status: data.status
+    });
+
+    await publish(event);
+  } catch (error) {
+    console.error('Failed to publish application.status.updated event', error)
+  }
 
   return updatedApplication
 }
