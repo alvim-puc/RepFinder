@@ -49,6 +49,9 @@ DB_USER=SEU_USER
 DB_PASS=SUA_SENHA
 DB_NAME=SEU_BANCO
 JWT_SECRET=SEU_SEGREDO
+REDIS_URL=SUA_URL_REDIS
+REDIS_PORT=SUA_PORTA_REDIS
+REDIS_PASSWORD=SUA_SENHA_REDIS
 ```
 
 O banco de dados e as tabelas são criados automaticamente na primeira execução.

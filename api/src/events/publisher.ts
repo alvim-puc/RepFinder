@@ -12,6 +12,8 @@ export const publisherService: Service = {
     await publisher.connect()
   },
   async stop() {
-    await publisher.quit()
+    if (publisher.isOpen) {
+      await publisher.quit()
+    }
   },
 }

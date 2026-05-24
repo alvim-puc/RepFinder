@@ -362,5 +362,69 @@
       "authentication": {},
       "metaSortKey": 1609459240000
     }
+    ,
+    {
+      "_id": "fld_notifications",
+      "_type": "request_group",
+      "parentId": "wrk_repfinder_api",
+      "name": "🔔 Notifications",
+      "environment": {},
+      "environmentPropertyOrder": null,
+      "metaSortKey": 1609459255000
+    },
+    {
+      "_id": "req_notifications_events",
+      "_type": "request",
+      "parentId": "fld_notifications",
+      "name": "Connect SSE (Events)",
+      "url": "{{ base_url }}/api/notifications/events",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1609459256000
+    },
+    {
+      "_id": "req_list_notifications",
+      "_type": "request",
+      "parentId": "fld_notifications",
+      "name": "List Notifications (placeholder)",
+      "url": "{{ base_url }}/api/notifications",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1609459257000
+    },
+    {
+      "_id": "req_mark_notification_read",
+      "_type": "request",
+      "parentId": "fld_notifications",
+      "name": "Mark Notification Read (placeholder)",
+      "url": "{{ base_url }}/api/notifications/NOTIF_ID/read",
+      "method": "PATCH",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Authorization",
+          "value": "Bearer {{ token }}"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": 1609459258000
+    }
   ]
 }

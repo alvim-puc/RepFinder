@@ -42,6 +42,26 @@ export async function initDatabase() {
     )
   `)
 
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS notifications (
+      id VARCHAR(36) PRIMARY KEY,
+      user_id VARCHAR(36) NOT NULL,
+      event VARCHAR(255) NOT NULL,
+      data TEXT,
+      readed_at DATETIME NULL,
+      created_at DATETIME NOT NULL
+    )
+  `)
+
+  try {
+    await pool.query(`
+      ALTER TABLE notifications
+      CHANGE COLUMN is_read readed_at DATETIME NULL
+    `)
+  } catch {
+    // base nova ou já migrada para readed_at
+  }
+
   console.log('✅ Database inicializado')
 
   return pool

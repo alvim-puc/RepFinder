@@ -2,6 +2,7 @@ import { subscriber } from '@/lib/redis'
 import { sendEvent } from '@/lib/sse'
 import { EVENTS_CHANNEL, type AppEvent } from '@/events/events.types'
 import { register, type Service } from '@/lib/lifecycle'
+import notificationsRepo from './notifications.repo'
 
 async function handleEvent(message: string): Promise<void> {
   const payload = JSON.parse(message) as AppEvent
@@ -13,6 +14,16 @@ async function handleEvent(message: string): Promise<void> {
         vacancyId:     payload.vacancyId,
         occurredAt:    payload.occurredAt,
       })
+      // persist notification for provider
+      try {
+        await notificationsRepo.createNotification(payload.providerId, payload.event, {
+          applicationId: payload.applicationId,
+          vacancyId: payload.vacancyId,
+          occurredAt: payload.occurredAt,
+        })
+      } catch (e) {
+        console.warn('[notifications] failed to persist notification', e)
+      }
       break
 
     case 'application.status.updated':
@@ -21,6 +32,16 @@ async function handleEvent(message: string): Promise<void> {
         status:        payload.status,
         occurredAt:    payload.occurredAt,
       })
+      // persist notification for applicant
+      try {
+        await notificationsRepo.createNotification(payload.applicantId, payload.event, {
+          applicationId: payload.applicationId,
+          status: payload.status,
+          occurredAt: payload.occurredAt,
+        })
+      } catch (e) {
+        console.warn('[notifications] failed to persist notification', e)
+      }
       break
 
     default:
@@ -35,8 +56,10 @@ const notificationService: Service = {
     await subscriber.subscribe(EVENTS_CHANNEL, handleEvent)
   },
   async stop() {
-    await subscriber.unsubscribe(EVENTS_CHANNEL)
-    await subscriber.quit()
+    if (subscriber.isOpen) {
+      await subscriber.unsubscribe(EVENTS_CHANNEL)
+      await subscriber.quit()
+    }
   },
 }
 

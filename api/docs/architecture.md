@@ -99,6 +99,17 @@ Eventos como:
 
 podem ser publicados pelo backend e consumidos por um serviço dedicado, responsável por notificar os clientes.
 
+### ⚖️ Decisão de implementação (Sprint 2)
+
+Para a Sprint 2 optou-se por não criar um processo "worker" separado: o sistema seguirá como um monólito modular onde um módulo publica eventos e outro (no mesmo processo) consome e envia notificações via SSE. Isso simplifica o desenvolvimento e o deploy nesta fase.
+
+Implicações importantes:
+- Durabilidade: Redis Pub/Sub não persiste mensagens — se o consumidor estiver offline, eventos podem ser perdidos. Se garantir entrega for necessário futuramente, deve-se migrar para Redis Streams ou outro broker com persistência.
+- Escalabilidade: o consumidor in-process escala junto com o servidor HTTP; para escalabilidade independente, deve-se extraí-lo como serviço/worker.
+- Resiliência: reconnects, tratamento de erros e idempotência nos handlers podem ser implementados para reduzir perda de informação.
+
+Esta decisão será documentada na entrega e reavaliada se os requisitos mudarem (ex.: alto volume de eventos ou necessidade de reprocessamento).
+
 ---
 
 ### 📡 Notificações e Tempo Real
