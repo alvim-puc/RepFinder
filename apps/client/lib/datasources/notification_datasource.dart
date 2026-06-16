@@ -32,31 +32,38 @@ class NotificationDatasource {
   }
 
   Stream<Map<String, dynamic>> listenEvents() async* {
-    final token = await SecureStorage.getToken();
-    if (token == null) {
-      throw Exception('Token de autenticação não encontrado para SSE');
-    }
-
-    final uri = Uri.parse('${_dio.options.baseUrl}/notifications/events');
-    final client = http.Client();
+    int reconnectDelaySeconds = 1;
+    const maxReconnectDelaySeconds = 30;
 
     while (true) {
+      final token = await SecureStorage.getToken();
+      if (token == null) {
+        await Future.delayed(const Duration(seconds: 5));
+        continue;
+      }
+
+      final uri = Uri.parse('${_dio.options.baseUrl}/notifications/events');
+      final client = http.Client();
+
       try {
         final request = http.Request('GET', uri);
         request.headers['Authorization'] = 'Bearer $token';
+        request.headers['Cache-Control'] = 'no-cache';
+        request.headers['Accept'] = 'text/event-stream';
+
         final response = await client.send(request);
 
         if (response.statusCode == 200) {
+          reconnectDelaySeconds = 1;
           await for (var chunk in response.stream.transform(utf8.decoder)) {
             final lines = chunk.split('\n');
             String? event;
             String? data;
             for (var line in lines) {
-              if (line.startsWith('event: ')) {
+              if (line.startsWith('event: '))
                 event = line.substring(7);
-              } else if (line.startsWith('data: ')) {
+              else if (line.startsWith('data: '))
                 data = line.substring(6);
-              }
 
               if (event != null && data != null) {
                 yield {'event': event, 'data': jsonDecode(data)};
@@ -65,12 +72,28 @@ class NotificationDatasource {
               }
             }
           }
+        } else if (response.statusCode == 401) {
+          await SecureStorage.clear();
+          navigatorKey.currentState?.pushNamedAndRemoveUntil(
+            '/login',
+            (route) => false,
+          );
+          break;
         } else {
-          throw Exception('Erro ao conectar ao SSE: ${response.statusCode}');
+          await Future.delayed(Duration(seconds: reconnectDelaySeconds));
+          reconnectDelaySeconds = (reconnectDelaySeconds * 2).clamp(
+            1,
+            maxReconnectDelaySeconds,
+          );
         }
       } catch (e) {
-        print('Erro na conexão SSE: $e. Tentando reconectar em 3 segundos...');
-        await Future.delayed(Duration(seconds: 3));
+        await Future.delayed(Duration(seconds: reconnectDelaySeconds));
+        reconnectDelaySeconds = (reconnectDelaySeconds * 2).clamp(
+          1,
+          maxReconnectDelaySeconds,
+        );
+      } finally {
+        client.close();
       }
     }
   }

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:client/datasources/notification_datasource.dart';
 import 'package:client/models/notification.dart';
+import 'package:client/domain/application_controller.dart';
 
 part 'notification_controller.g.dart';
 
@@ -11,7 +12,6 @@ class NotificationController extends _$NotificationController {
 
   @override
   Future<List<AppNotification>> build() async {
-    // Registra a limpeza automática quando o provider for destruído
     ref.onDispose(() {
       _sseSubscription?.cancel();
     });
@@ -39,7 +39,13 @@ class NotificationController extends _$NotificationController {
         .listenEvents()
         .listen(
           (eventData) {
-            ref.invalidateSelf();
+            ref.invalidateSelf(); // Recarrega a lista de notificações
+            // Se o evento for de atualização de status de aplicação, recarrega as aplicações também
+            if (eventData["event"] == "application.status.updated") {
+              ref.invalidate(
+                applicationControllerProvider,
+              ); // Invalida o provider de aplicações
+            }
           },
           onError: (error) {
             print('Erro no stream SSE: $error');
