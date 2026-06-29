@@ -17,7 +17,7 @@ final dioProvider = Provider<Dio>((ref) {
 });
 
 void setupDio(Dio dio) {
-  final apiBaseUrl = dotenv.env['API_URL'] ?? 'http://10.0.2.2:3030/api';
+  final apiBaseUrl = dotenv.env['API_URL'] ?? 'http://localhost:3030/api';
   dio.options.baseUrl = apiBaseUrl;
   dio.options.connectTimeout = const Duration(seconds: 5);
   dio.options.receiveTimeout = const Duration(seconds: 3);

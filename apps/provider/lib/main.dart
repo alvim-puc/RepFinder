@@ -8,6 +8,7 @@ import 'package:provider/screens/dashboard_screen.dart';
 import 'package:provider/screens/profile_screen.dart';
 import 'package:provider/screens/create_vacancy_screen.dart';
 import 'package:provider/screens/manage_candidates_screen.dart';
+import 'package:provider/screens/notifications_screen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,12 +25,10 @@ class RepFinderProviderApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final authState = ref.watch(authControllerProvider);
-
     return MaterialApp(
       title: 'RepFinder Provider',
-      debugShowCheckedModeBanner: false,
       navigatorKey: navigatorKey,
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         primarySwatch: Colors.indigo,
         visualDensity: VisualDensity.adaptivePlatformDensity,
@@ -76,30 +75,31 @@ class RepFinderProviderApp extends ConsumerWidget {
           ),
         ),
       ),
-      initialRoute: '/',
+      home: const AuthGate(),
       routes: {
-        '/': (context) {
-          return authState.when(
-            data: (user) {
-              if (user == null) {
-                return const LoginScreen();
-              } else {
-                return const MainScreen();
-              }
-            },
-            loading: () => const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            ),
-            error: (err, stack) =>
-                Scaffold(body: Center(child: Text('Erro: $err'))),
-          );
-        },
-        '/login': (context) => const LoginScreen(),
-        '/create-vacancy': (context) => const CreateVacancyScreen(),
-        '/manage-candidates': (context) => ManageCandidatesScreen(
-          vacancyId: ModalRoute.of(context)!.settings.arguments as String,
+        '/login': (_) => const LoginScreen(),
+        '/create-vacancy': (_) => const CreateVacancyScreen(),
+        '/notifications': (ctx) => const NotificationsScreen(),
+        '/manage-candidates': (ctx) => ManageCandidatesScreen(
+          vacancyId: ModalRoute.of(ctx)!.settings.arguments as String,
         ),
       },
+    );
+  }
+}
+
+class AuthGate extends ConsumerWidget {
+  const AuthGate({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final authState = ref.watch(authControllerProvider);
+
+    return authState.when(
+      data: (user) => user == null ? const LoginScreen() : const MainScreen(),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
+      error: (_, __) => const LoginScreen(), // ← erro = não autenticado
     );
   }
 }

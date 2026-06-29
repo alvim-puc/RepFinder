@@ -18,7 +18,10 @@ class VacanciesScreen extends ConsumerWidget {
     final notificationsAsync = ref.watch(notificationControllerProvider);
 
     final unreadNotifications =
-        notificationsAsync.value?.where((n) => n.readedAt == null).length ?? 0;
+        notificationsAsync.valueOrNull
+            ?.where((n) => n.readedAt == null)
+            .length ??
+        0;
 
     return Scaffold(
       backgroundColor: Colors.white,

@@ -9,7 +9,12 @@ part 'auth_controller.g.dart';
 class AuthController extends _$AuthController {
   @override
   Future<User?> build() async {
-    return await SecureStorage.getUser();
+    try {
+      return await SecureStorage.getUser();
+    } catch (_) {
+      // storage falhou ou vazio — trata como não autenticado
+      return null;
+    }
   }
 
   Future<void> login(String email, String password) async {

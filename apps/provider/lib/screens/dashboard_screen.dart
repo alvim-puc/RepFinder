@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:provider/domain/vacancy_controller.dart';
+import 'package:provider/domain/notification_controller.dart';
 import 'package:provider/widgets/vacancy_card_rep.dart';
 
 class DashboardScreen extends ConsumerWidget {
@@ -11,6 +12,14 @@ class DashboardScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final vacanciesAsync = ref.watch(vacancyControllerProvider);
+    final notificationsAsync = ref.watch(notificationControllerProvider);
+    // .valueOrNull em vez de .value: em estado de erro, .value relançaria a
+    // exceção dentro do build() e quebraria a tela (mesmo bug corrigido no app cliente).
+    final unreadNotifications =
+        notificationsAsync.valueOrNull
+            ?.where((n) => n.readedAt == null)
+            .length ??
+        0;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -38,13 +47,42 @@ class DashboardScreen extends ConsumerWidget {
           ),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.notifications_none_rounded,
-              color: Color(0xFF1E1B4B),
-              size: 28,
-            ),
-            onPressed: () {},
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(
+                  Icons.notifications_none_rounded,
+                  color: Color(0xFF1E1B4B),
+                  size: 28,
+                ),
+                onPressed: () => Navigator.pushNamed(context, '/notifications'),
+              ),
+              if (unreadNotifications > 0)
+                Positioned(
+                  right: 8,
+                  top: 8,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: const BoxDecoration(
+                      color: Colors.red,
+                      shape: BoxShape.circle,
+                    ),
+                    constraints: const BoxConstraints(
+                      minWidth: 16,
+                      minHeight: 16,
+                    ),
+                    child: Text(
+                      '$unreadNotifications',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+            ],
           ),
           const SizedBox(width: 8),
         ],
