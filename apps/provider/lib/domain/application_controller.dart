@@ -23,15 +23,12 @@ class ApplicationController extends _$ApplicationController {
     String status,
     String vacancyId,
   ) async {
-    // Atualiza o status de uma aplicação específica e recarrega a lista para a vaga
+    // Atualiza o status de uma aplicação específica no servidor.
+    // Quem chama este método (ex: CandidateCard) é responsável por recarregar
+    // a lista da tela (ManageCandidatesScreen) depois que isto terminar,
+    // pois este controller não mantém o estado por vacancyId.
     await ref
         .read(applicationDatasourceProvider)
         .updateApplicationStatus(applicationId, status);
-    // Após a atualização, recarrega a lista de candidaturas para a vaga específica
-    // Isso garante que a UI que está observando esta lista seja atualizada.
-    // Poderíamos otimizar para atualizar apenas o item, mas invalidar é mais simples por agora.
-    ref.invalidateSelf(); // Invalida este controller para que ele recarregue
-    // Como este controller não tem um build() que carrega por ID, precisamos de um mecanismo para atualizar a tela que o usa.
-    // A tela de ManageCandidatesScreen precisará chamar getApplicationsForVacancy novamente.
   }
 }

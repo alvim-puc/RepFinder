@@ -5,21 +5,60 @@ import 'package:provider/models/candidate_profile.dart';
 import 'package:provider/domain/application_controller.dart';
 import 'package:provider/datasources/user_datasource.dart';
 
-class CandidateCard extends ConsumerWidget {
+class CandidateCard extends ConsumerStatefulWidget {
   final Application application;
   final String vacancyId;
+  final VoidCallback onChanged;
 
   const CandidateCard({
     super.key,
     required this.application,
     required this.vacancyId,
+    required this.onChanged,
   });
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CandidateCard> createState() => _CandidateCardState();
+}
+
+class _CandidateCardState extends ConsumerState<CandidateCard> {
+  bool _isSubmitting = false;
+
+  Future<void> _updateStatus(String status) async {
+    // Evita cliques duplicados/em rajada enquanto a requisição está em voo.
+    if (_isSubmitting) return;
+    setState(() => _isSubmitting = true);
+
+    try {
+      await ref
+          .read(applicationControllerProvider.notifier)
+          .updateStatus(widget.application.id, status, widget.vacancyId);
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Não foi possível atualizar. Esta candidatura pode já ter sido avaliada.',
+            ),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _isSubmitting = false);
+      // Recarrega a lista a partir do servidor em qualquer caso (sucesso ou erro),
+      // para que a tela sempre reflita o status real e os botões não fiquem presos.
+      widget.onChanged();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final application = widget.application;
     final isPending = application.status == 'pending';
     // Busca nome, sexo, foto e bio do candidato via perfil público (/users/:id).
-    final profileAsync = ref.watch(candidateProfileProvider(application.userId));
+    final profileAsync = ref.watch(
+      candidateProfileProvider(application.userId),
+    );
     final profile = profileAsync.valueOrNull;
 
     return Card(
@@ -111,26 +150,41 @@ class CandidateCard extends ConsumerWidget {
                 children: [
                   Expanded(
                     child: OutlinedButton(
-                      onPressed: () => ref
-                          .read(applicationControllerProvider.notifier)
-                          .updateStatus(application.id, 'rejected', vacancyId),
+                      onPressed: _isSubmitting
+                          ? null
+                          : () => _updateStatus('rejected'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: Colors.red,
                         side: const BorderSide(color: Colors.red),
                       ),
-                      child: const Text('Recusar'),
+                      child: _isSubmitting
+                          ? const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Recusar'),
                     ),
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: ElevatedButton(
-                      onPressed: () => ref
-                          .read(applicationControllerProvider.notifier)
-                          .updateStatus(application.id, 'accepted', vacancyId),
+                      onPressed: _isSubmitting
+                          ? null
+                          : () => _updateStatus('accepted'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFF0D9488),
                       ),
-                      child: const Text('Aceitar'),
+                      child: _isSubmitting
+                          ? const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text('Aceitar'),
                     ),
                   ),
                 ],
