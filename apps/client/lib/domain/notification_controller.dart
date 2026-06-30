@@ -6,17 +6,37 @@ import 'package:client/domain/application_controller.dart';
 
 part 'notification_controller.g.dart';
 
+// nos dois apps — notification_controller.dart
 @Riverpod(keepAlive: true)
 class NotificationController extends _$NotificationController {
   StreamSubscription? _sseSubscription;
 
   @override
   Future<List<AppNotification>> build() async {
-    ref.onDispose(() {
-      _sseSubscription?.cancel();
-    });
+    final datasource = ref.read(notificationDatasourceProvider);
 
-    return ref.read(notificationDatasourceProvider).listAll();
+    // Inicia SSE aqui — conecta quando o provider é criado (ao logar)
+    // e fica vivo até o provider ser descartado (ao deslogar)
+    _sseSubscription?.cancel();
+    _sseSubscription = datasource.listenEvents().listen((eventData) async {
+      try {
+        final updated = await datasource.listAll();
+        state = AsyncData(updated);
+      } catch (_) {}
+
+      // client
+      if (eventData["event"] == "application.status.updated") {
+        ref.invalidate(applicationControllerProvider);
+      }
+      // provider
+      // if (eventData["event"] == "application.created") {
+      //   ref.invalidate(vacancyControllerProvider);
+      // }
+    }, onError: (e) => print('Erro no stream SSE: $e'));
+
+    ref.onDispose(() => _sseSubscription?.cancel());
+
+    return datasource.listAll();
   }
 
   Future<void> markRead(String id) async {
@@ -32,29 +52,5 @@ class NotificationController extends _$NotificationController {
     });
   }
 
-  void startListening() {
-    _sseSubscription?.cancel();
-    _sseSubscription = ref
-        .read(notificationDatasourceProvider)
-        .listenEvents()
-        .listen(
-          (eventData) {
-            ref.invalidateSelf(); // Recarrega a lista de notificações
-            // Se o evento for de atualização de status de aplicação, recarrega as aplicações também
-            if (eventData["event"] == "application.status.updated") {
-              ref.invalidate(
-                applicationControllerProvider,
-              ); // Invalida o provider de aplicações
-            }
-          },
-          onError: (error) {
-            print('Erro no stream SSE: $error');
-          },
-        );
-  }
-
-  void stopListening() {
-    _sseSubscription?.cancel();
-    _sseSubscription = null;
-  }
+  // startListening() e stopListening() podem ser deletados
 }

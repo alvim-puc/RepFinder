@@ -14,20 +14,18 @@ class NotificationsScreen extends ConsumerStatefulWidget {
 class _NotificationsScreenState extends ConsumerState<NotificationsScreen>
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
+  late NotificationController _notifNotifier;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(notificationControllerProvider.notifier).startListening();
-    });
+    _notifNotifier = ref.read(notificationControllerProvider.notifier);
   }
 
   @override
   void dispose() {
     _tabController.dispose();
-    ref.read(notificationControllerProvider.notifier).stopListening();
     super.dispose();
   }
 
