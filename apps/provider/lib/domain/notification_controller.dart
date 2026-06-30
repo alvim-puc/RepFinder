@@ -6,7 +6,6 @@ import 'package:provider/domain/vacancy_controller.dart';
 
 part 'notification_controller.g.dart';
 
-// nos dois apps — notification_controller.dart
 @Riverpod(keepAlive: true)
 class NotificationController extends _$NotificationController {
   StreamSubscription? _sseSubscription;
@@ -24,11 +23,7 @@ class NotificationController extends _$NotificationController {
         state = AsyncData(updated);
       } catch (_) {}
 
-      // client
-      // if (eventData["event"] == "application.status.updated") {
-      //   ref.invalidate(applicationControllerProvider);
-      // }
-      // provider
+
       if (eventData["event"] == "application.created") {
         ref.invalidate(vacancyControllerProvider);
       }
@@ -51,6 +46,4 @@ class NotificationController extends _$NotificationController {
           .toList();
     });
   }
-
-  // startListening() e stopListening() podem ser deletados
 }
