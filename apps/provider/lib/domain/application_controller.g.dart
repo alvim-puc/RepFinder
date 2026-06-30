@@ -7,7 +7,7 @@ part of 'application_controller.dart';
 // **************************************************************************
 
 String _$applicationControllerHash() =>
-    r'5cfe8654aa9474bb35dfc7f80ae6f64af5842e17';
+    r'e16e3da11a7bcfda33ac23cd2dc9f05e2efb86ce';
 
 /// See also [ApplicationController].
 @ProviderFor(ApplicationController)
